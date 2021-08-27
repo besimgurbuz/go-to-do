@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
+	"time"
 )
 
 var templates  *template.Template = template.Must(template.ParseFiles("templates/list.html"))
@@ -14,18 +16,22 @@ type Todo struct {
 	ID			string  `json:"id"`
 	IsFinished 	bool	`json:"is_finished"`
 	Title		string	`json:"title"`
-	DueDate		uint64	`json:"due_date"`
+	Body		string 	`json:"body"`
+	DueDate		time.Time	`json:"due_date"`
 }
 
+var layout string = "2006-01-02T15:04:05.000Z"
+
 var todos []Todo = []Todo{
-	{ID: "1", IsFinished: false, Title: "Todo 1", DueDate: 1629927916662},
-	{ID: "2", IsFinished: false, Title: "Todo 2", DueDate: 1629927916962},
-	{ID: "3", IsFinished: true, Title: "Todo 3", DueDate: 1629927916692},
-	{ID: "4", IsFinished: false, Title: "Todo 4", DueDate: 1629927916940},
+	{ID: "0", IsFinished: false, Title: "Todo 1", Body: "Todo body todo body", DueDate: time.Now()},
+	{ID: "1", IsFinished: false, Title: "Todo 2", Body: "Todo body todo body", DueDate: time.Now()},
+	{ID: "2", IsFinished: true, Title: "Todo 3", Body: "Todo body todo body", DueDate: time.Now()},
+	{ID: "3", IsFinished: false, Title: "Todo 4", Body: "Todo body todo body", DueDate: time.Now()},
 }
 
 func main() {
 	http.HandleFunc("/todos", handleListing)
+	http.HandleFunc("/create", handleCreate)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -36,6 +42,20 @@ func handleListing(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func handleCreate(w http.ResponseWriter, r *http.Request) {
+	newTodoTitle := r.FormValue("todo-title")
+	newTodoBody := r.FormValue("todo-body")
+
+	if newTodoTitle == "" {
+		http.Error(w, "Todo Title cannot be empty", http.StatusBadRequest)
+		return
+	}
+
+	newTodo := Todo{ID: strconv.Itoa(len(todos) + 1), IsFinished: false, Title: newTodoTitle, Body: newTodoBody, DueDate: time.Now()}
+	todos = append(todos, newTodo)
+	http.Redirect(w, r, "/todos", http.StatusFound)
 }
 
 

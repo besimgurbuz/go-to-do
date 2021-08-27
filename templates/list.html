@@ -13,6 +13,15 @@
             gap: 0.5rem;
             font-family: Consolas;
         }
+        .list {
+            display: flex;
+            max-height: 500px;
+            width: 100%;
+            overflow: auto;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
         #header {
             font-size: 45px;
         }
@@ -27,23 +36,104 @@
             position: absolute;
             top: 0;
             left: 0;
+            width: 18px;
+            height: 18px;
+        }
+        #todo-add-new {
+            padding: 1rem;
+            background: #f1f1f1;
+            font-family: Consolas;
+            font-size: 1.3rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+        }
+        #add-todo-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            font-family: Consolas;
+            width: 300px;
+        }
+
+        #add-todo-form > button {
+            padding: 0.4rem;
+            background: #f1f1f1;
+            font-family: Consolas;
+            border-radius: 6px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 id="header">Todos</h1>
-        {{range .}}
-        <div class="todo">
-            {{if .IsFinished}}
-            <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox" checked>
-            {{else}}
-            <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox">
+        <div class="list">
+            {{range .}}
+            <div class="todo">
+                {{if .IsFinished}}
+                <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox" checked>
+                {{else}}
+                <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox">
+                {{end}}
+                <div class="content">
+                    <h2 class="todo-title">{{.Title}}</h2>
+                    <p>{{.Body}}</p>
+                </div>
+                <p class="todo-due-date">{{ .DueDate.Format "Jan 02, 2006 15:04:05" }}</p>
+            </div>
             {{end}}
-            <h2 class="todo-title">{{.Title}}</h2>
-            <p class="todo-due-date">{{.DueDate}}</p>
         </div>
-        {{end}}
+        <button id="todo-add-new">Add new Todo</button>
     </div>
+
+    <script>
+        function TodoForm() {
+            let isOpened = false;
+            const container = document.querySelector('.container');
+
+            return {
+                toggleForm: function () {
+                    if (isOpened) {
+                       const addTodoForm = container.querySelector('#add-todo-form');
+                       container.removeChild(addTodoForm);
+                       isOpened = false;
+                    } else {
+                        const addTodoForm = document.createElement('form');
+                        addTodoForm.id = 'add-todo-form';
+                        addTodoForm.action = '/create'
+
+                        const header = document.createElement('h2');
+                        header.innerText = 'New Todo';
+                        addTodoForm.appendChild(header);
+
+                        const titleInput = document.createElement('input');
+                        titleInput.name = 'todo-title';
+                        titleInput.type = 'text';
+                        titleInput.placeholder = 'Todo title';
+                        addTodoForm.appendChild(titleInput);
+
+                        const bodyInput = document.createElement('input');
+                        bodyInput.name = 'todo-body';
+                        bodyInput.type = 'text';
+                        bodyInput.placeholder = 'Todo body';
+                        addTodoForm.appendChild(bodyInput);
+
+                        const submitButton = document.createElement('button');
+                        submitButton.type = 'submit';
+                        submitButton.innerText = 'Create';
+                        addTodoForm.appendChild(submitButton);
+
+                        container.appendChild(addTodoForm);
+                        isOpened = true;
+                    }
+                }
+            }
+        }
+
+        const todoForm = TodoForm();
+
+        document.querySelector('#todo-add-new').addEventListener('click', () => {
+            todoForm.toggleForm();
+        })
+    </script>
 </body>
 </html>
