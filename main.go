@@ -59,20 +59,26 @@ func handleCreate(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/todos", http.StatusFound)
 }
 
-func removeTodoByIndex(s []Todo, index int) []Todo {
-	return append(s[:index], s[index+1:]...)
+func removeTodo(todoId string) []Todo {
+	for i, todo := range todos {
+		if todo.ID == todoId {
+			todos = append(todos[:i], todos[i+1:]...)
+			return todos
+		}
+	}
+
+	return todos
 }
 
 func handleDelete(w http.ResponseWriter, r *http.Request) {
 	id := r.FormValue("id")
-	i, err := strconv.Atoi(id)
 
-	if id == "" || err != nil {
+	if id == ""{
 		http.Error(w, "Id should be given and should be a number", http.StatusBadRequest)
 		return
 	}
 
-	todos = removeTodoByIndex(todos, i)
+	todos = removeTodo(id)
 	http.Redirect(w, r, "/todos", http.StatusFound)
 }
 

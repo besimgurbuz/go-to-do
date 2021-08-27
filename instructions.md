@@ -3,5 +3,5 @@
 ### Instructions
 - [x] Listing todos
 - [ ] Editing todo by ID
-- [ ] Deleting todo by ID
+- [x] Deleting todo by ID
 - [ ] Marking todo as finished
