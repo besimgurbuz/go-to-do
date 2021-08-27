@@ -3,8 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <title>To do - List</title>
+    <style>
+        .container {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: Consolas;
+        }
+        #header {
+            font-size: 45px;
+        }
+        .todo {
+            display: flex;
+            width: 50%;
+            justify-content: space-around;
+            position: relative;
+        }
+
+        .todo-checkbox {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
 </head>
 <body>
-
+    <div class="container">
+        <h1 id="header">Todos</h1>
+        {{range .}}
+        <div class="todo">
+            {{if .IsFinished}}
+            <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox" checked>
+            {{else}}
+            <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox">
+            {{end}}
+            <h2 class="todo-title">{{.Title}}</h2>
+            <p class="todo-due-date">{{.DueDate}}</p>
+        </div>
+        {{end}}
+    </div>
 </body>
 </html>
