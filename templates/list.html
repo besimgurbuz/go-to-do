@@ -25,11 +25,18 @@
         #header {
             font-size: 45px;
         }
+
         .todo {
             display: flex;
             width: 50%;
             justify-content: space-around;
             position: relative;
+            border-radius: 6px;
+        }
+
+        .todo-finished-true {
+            text-decoration: line-through;
+            background-color: #5cb85c;
         }
 
         .todo-checkbox {
@@ -39,6 +46,13 @@
             width: 18px;
             height: 18px;
         }
+
+        .todo-delete-button {
+            position: absolute;
+            right: 3px;
+            bottom: 3px;
+        }
+
         #todo-add-new {
             padding: 1rem;
             background: #f1f1f1;
@@ -68,17 +82,18 @@
         <h1 id="header">Todos</h1>
         <div class="list">
             {{range .}}
-            <div class="todo">
+            <div class="todo todo-finished-{{.IsFinished}}">
                 {{if .IsFinished}}
-                <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox" checked>
+                <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox" data-id="{{.ID}}" checked>
                 {{else}}
-                <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox">
+                <input class="todo-checkbox" type="checkbox" name="{{.ID}}-checkbox" data-id="{{.ID}}">
                 {{end}}
                 <div class="content">
                     <h2 class="todo-title">{{.Title}}</h2>
                     <p>{{.Body}}</p>
                 </div>
                 <p class="todo-due-date">{{ .DueDate.Format "Jan 02, 2006 15:04:05" }}</p>
+                <a class="todo-delete-button" href="/delete?id={{.ID}}">Delete</a>
             </div>
             {{end}}
         </div>

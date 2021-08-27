@@ -32,6 +32,7 @@ var todos []Todo = []Todo{
 func main() {
 	http.HandleFunc("/todos", handleListing)
 	http.HandleFunc("/create", handleCreate)
+	http.HandleFunc("/delete", handleDelete)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -58,4 +59,20 @@ func handleCreate(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/todos", http.StatusFound)
 }
 
+func removeTodoByIndex(s []Todo, index int) []Todo {
+	return append(s[:index], s[index+1:]...)
+}
+
+func handleDelete(w http.ResponseWriter, r *http.Request) {
+	id := r.FormValue("id")
+	i, err := strconv.Atoi(id)
+
+	if id == "" || err != nil {
+		http.Error(w, "Id should be given and should be a number", http.StatusBadRequest)
+		return
+	}
+
+	todos = removeTodoByIndex(todos, i)
+	http.Redirect(w, r, "/todos", http.StatusFound)
+}
 
