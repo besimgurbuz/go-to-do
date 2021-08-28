@@ -48,6 +48,12 @@
             height: 18px;
         }
 
+        .todo-edit-button {
+            position: absolute;
+            right: 65px;
+            bottom: 3px;
+        }
+
         .todo-delete-button {
             position: absolute;
             right: 3px;
@@ -94,6 +100,7 @@
                     <p>{{.Body}}</p>
                 </div>
                 <p class="todo-due-date">{{ .DueDate.Format "Jan 02, 2006 15:04:05" }}</p>
+                <a class="todo-edit-button" href="/edit?id={{.ID}}">Edit</a>
                 <a class="todo-delete-button" href="/delete?id={{.ID}}">Delete</a>
             </div>
             {{end}}

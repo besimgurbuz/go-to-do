@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
@@ -9,7 +10,7 @@ import (
 	"time"
 )
 
-var templates  *template.Template = template.Must(template.ParseFiles("templates/list.html"))
+var templates  *template.Template = template.Must(template.ParseFiles("templates/list.html", "templates/edit.html"))
 var validPath = regexp.MustCompile("^/(list)/([a-zA-Z0-9]+)$")
 
 type Todo struct {
@@ -32,6 +33,7 @@ var todos []Todo = []Todo{
 func main() {
 	http.HandleFunc("/todos", handleListing)
 	http.HandleFunc("/create", handleCreate)
+	http.HandleFunc("/edit", handleEdit)
 	http.HandleFunc("/delete", handleDelete)
 	http.HandleFunc("/mark", handleMark)
 
@@ -58,6 +60,49 @@ func handleCreate(w http.ResponseWriter, r *http.Request) {
 	newTodo := Todo{ID: strconv.Itoa(len(todos) + 1), IsFinished: false, Title: newTodoTitle, Body: newTodoBody, DueDate: time.Now()}
 	todos = append(todos, newTodo)
 	http.Redirect(w, r, "/todos", http.StatusFound)
+}
+
+func handleEdit(w http.ResponseWriter, r *http.Request) {
+	id := r.FormValue("id")
+
+	if r.Method == "POST" {
+		editTodo(w, r)
+		return
+	}
+
+	for _, todo := range todos {
+		if todo.ID == id {
+			err := templates.ExecuteTemplate(w, "edit.html", todo)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+			return
+		}
+	}
+	http.Error(w, "Id is incorrect", http.StatusBadRequest)
+}
+
+func editTodo(w http.ResponseWriter, r *http.Request) {
+	var editedTodo Todo
+
+	err := json.NewDecoder(r.Body).Decode(&editedTodo)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	for i, todo := range todos {
+		if todo.ID == editedTodo.ID {
+			foundTodo := &todos[i]
+			foundTodo.Title = editedTodo.Title
+			foundTodo.Body = editedTodo.Body
+			http.Redirect(w, r, "/todos", http.StatusFound)
+			return
+		}
+	}
+
+	http.Error(w,"Todo is not found", http.StatusBadRequest)
 }
 
 func removeTodo(todoId string) []Todo {
