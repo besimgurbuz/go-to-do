@@ -33,6 +33,7 @@ func main() {
 	http.HandleFunc("/todos", handleListing)
 	http.HandleFunc("/create", handleCreate)
 	http.HandleFunc("/delete", handleDelete)
+	http.HandleFunc("/mark", handleMark)
 
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -82,3 +83,19 @@ func handleDelete(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/todos", http.StatusFound)
 }
 
+func handleMark(w http.ResponseWriter, r *http.Request) {
+	id := r.FormValue("id")
+	state := r.FormValue("state")
+
+	for index, todo := range todos {
+		if todo.ID == id {
+			s, err := strconv.ParseBool(state)
+
+			if err != nil {
+				http.Error(w, "State should be boolean", http.StatusBadRequest)
+			}
+			todoRef := &todos[index]
+			todoRef.IsFinished = s
+		}
+	}
+}

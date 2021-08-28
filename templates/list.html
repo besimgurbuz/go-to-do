@@ -32,6 +32,7 @@
             justify-content: space-around;
             position: relative;
             border-radius: 6px;
+            padding: 0.2rem;
         }
 
         .todo-finished-true {
@@ -140,6 +141,19 @@
                         container.appendChild(addTodoForm);
                         isOpened = true;
                     }
+                },
+                markTodo: async function (todoId, state, todoIndex) {
+                    const markUrl = `/mark?id=${todoId}&state=${state}`;
+                    const result = await fetch(markUrl, {method: 'POST'});
+
+                    if (result.status === 200) {
+                        const todoClassList = document.querySelectorAll('.todo')[todoIndex].classList
+                        if (state) {
+                            todoClassList.add('todo-finished-true');
+                        } else {
+                            todoClassList.remove('todo-finished-true')
+                        }
+                    }
                 }
             }
         }
@@ -148,7 +162,17 @@
 
         document.querySelector('#todo-add-new').addEventListener('click', () => {
             todoForm.toggleForm();
-        })
+        });
+
+        const checkboxes = document.querySelectorAll('.todo-checkbox');
+        for (const [i, checkbox] of checkboxes.entries())  {
+            checkbox.addEventListener('click', () => {
+                const state = checkbox.checked;
+                const todoId = checkbox.dataset.id;
+                todoForm.markTodo(todoId, state, i);
+            })
+        }
+
     </script>
 </body>
 </html>
